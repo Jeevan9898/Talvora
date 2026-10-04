@@ -252,16 +252,74 @@ Files are processed by **Multer** in-memory before being streamed to Cloudinary 
 
 ## 🚢 Deployment
 
-| Part         | Platform   | Notes |
-| ------------ | ---------- | ----- |
-| **Frontend** | **Vercel** | Static client served from `frontend/` |
-| **Backend**  | **Render** | Express API, configured via [`render.yaml`](render.yaml) |
-| **Database** | MongoDB Atlas | Connection string set via `MONGO_URI` |
-| **Files**    | Cloudinary | Credentials set via environment variables |
+Talvora is deployed as two independent services that talk over HTTPS:
 
-**Backend (Render):** set `MONGO_URI`, `JWT_SECRET`, `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET` in the Render service's environment settings.
+```mermaid
+flowchart LR
+    GH[(GitHub repo<br/>Jeevan9898/Talvora)] -- auto-deploy on push --> R[Render<br/>talvora-api]
+    GH -- auto-deploy on push --> V[Vercel<br/>talvora-frontend]
+    U[👤 User browser] --> V
+    V -- HTTPS REST calls --> R
+    R --> M[(MongoDB Atlas)]
+    R --> C[(Cloudinary)]
+```
 
-**Frontend (Vercel):** point the client's API base URL to the Render backend URL above.
+| Part         | Platform      | Source folder | URL |
+| ------------ | ------------- | ------------- | --- |
+| **Frontend** | Vercel        | `frontend/`   | [talvora-frontend.vercel.app](https://talvora-frontend.vercel.app) |
+| **Backend**  | Render        | `backend/`    | [talvora.onrender.com](https://talvora.onrender.com) |
+| **Database** | MongoDB Atlas | —             | via `MONGO_URI` |
+| **Files**    | Cloudinary    | —             | via `CLOUDINARY_*` keys |
+
+### Deployment path
+
+**1. Push to GitHub.** Both platforms are connected to this repo, so a push to `main` triggers a new deploy on each.
+
+**2. Set up the database and file storage.**
+- Create a MongoDB Atlas cluster and copy its connection string.
+- In Atlas → Network Access, allow connections from Render (Render's outbound IPs change, so `0.0.0.0/0` is the usual choice for a free-tier setup).
+- Create a Cloudinary account and note the cloud name, API key and API secret.
+
+**3. Deploy the backend on Render.** The service is defined in [`render.yaml`](render.yaml):
+
+| Setting | Value |
+| ------- | ----- |
+| Service type | Web Service (Node) |
+| Root directory | `backend` |
+| Build command | `npm ci` |
+| Start command | `npm start` |
+
+Add these environment variables in the Render dashboard (they are declared in `render.yaml` with `sync: false`, so values are entered manually and never committed):
+
+```env
+MONGO_URI=
+JWT_SECRET=
+CLOUDINARY_CLOUD_NAME=
+CLOUDINARY_API_KEY=
+CLOUDINARY_API_SECRET=
+```
+
+Render sets `PORT` automatically. After the first deploy, open `https://talvora.onrender.com` to confirm the API is up.
+
+**4. Point the frontend at the backend.** In the frontend code, set the API base URL to `https://talvora.onrender.com` (instead of `http://localhost:5005`).
+
+**5. Deploy the frontend on Vercel.**
+- Import the GitHub repo in Vercel.
+- Set **Root Directory** to `frontend`.
+- Framework preset: **Other** (plain static site). Leave the build command empty, output directory `.`.
+- Deploy. Vercel serves the site at `talvora-frontend.vercel.app`.
+
+**6. Verify end to end.** Open the Vercel URL, register a user, log in, and upload a profile picture or resume. This exercises the frontend → Render → MongoDB → Cloudinary chain. If requests fail in the browser console with a CORS error, allow the Vercel origin in the backend's CORS configuration and redeploy.
+
+### Updating a deployment
+
+| Change | What to do |
+| ------ | ---------- |
+| Code change (backend or frontend) | Push to `main`; Render and Vercel redeploy automatically |
+| New or changed secret | Update it in the Render dashboard and redeploy the service |
+| Backend URL changed | Update the API base URL in the frontend, then push |
+
+> ⏳ On Render's free tier the backend sleeps after a period of inactivity, so the first request after a while can take several seconds to respond.
 
 ---
 
