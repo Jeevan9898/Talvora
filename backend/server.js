@@ -12,8 +12,6 @@ const applicationRoutes = require("./applicationRoutes");
 const dashboardRoutes = require("./dashboardRoutes");
 const userRoutes = require("./userRoutes");
 
-connectDB();
-
 app.use(cors());
 app.use(express.json());
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
@@ -30,6 +28,16 @@ app.get("/", (req, res)=>{
 
 const PORT = process.env.PORT || 5005;
 
-app.listen(PORT, ()=>{
-    console.log(`Server Running on Port ${PORT}`);
-});
+const startServer = async()=>{
+    try{
+        await connectDB();
+        app.listen(PORT, ()=>{
+            console.log(`Server Running on Port ${PORT}`);
+        });
+    }catch(error){
+        console.error(`Backend startup failed: ${error.message}`);
+        process.exit(1);
+    }
+};
+
+startServer();
