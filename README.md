@@ -3,7 +3,7 @@
 **A full-stack hiring platform — employers post jobs, candidates apply, all managed through role-based dashboards**
 
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-Vercel-000?style=flat&logo=vercel&logoColor=white)](https://talvora-frontend.vercel.app)
-[![API](https://img.shields.io/badge/API-Render-46E3B7?style=flat&logo=render&logoColor=white)](https://YOUR-BACKEND.onrender.com)
+[![API](https://img.shields.io/badge/API-Render-46E3B7?style=flat&logo=render&logoColor=white)](https://talvora.onrender.com)
 [![Node.js](https://img.shields.io/badge/Node.js-339933?style=flat&logo=nodedotjs&logoColor=white)](https://nodejs.org)
 [![Express.js](https://img.shields.io/badge/Express.js-000000?style=flat&logo=express&logoColor=white)](https://expressjs.com)
 [![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=flat&logo=mongodb&logoColor=white)](https://www.mongodb.com)
@@ -19,7 +19,7 @@
 | Service  | Platform | URL |
 | -------- | -------- | --- |
 | **Frontend** | Vercel | [talvora-frontend.vercel.app](https://talvora-frontend.vercel.app) |
-| **Backend API** | Render | [YOUR-BACKEND.onrender.com](https://YOUR-BACKEND.onrender.com) |
+| **Backend API** | Render | [talvora.onrender.com](https://talvora.onrender.com) |
 
 > ⏳ The backend runs on Render. If the service has been idle, the first request may take a few seconds while it wakes up.
 
@@ -168,7 +168,7 @@ flowchart TD
 
 ## 📡 API Endpoints
 
-**Base URL (production):** `https://YOUR-BACKEND.onrender.com`
+**Base URL (production):** `https://talvora.onrender.com`
 
 ### Authentication
 
